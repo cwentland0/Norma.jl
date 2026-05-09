@@ -31,7 +31,6 @@ function NeuralNetworkOpInfRom(params::Dict{String,Any})
 
     time = 0.0
     failed = false
-    null_vec = zeros(num_dofs)
 
     reduced_state = zeros(num_dofs)
     reduced_velocity = zeros(num_dofs)
@@ -44,13 +43,13 @@ function NeuralNetworkOpInfRom(params::Dict{String,Any})
         reduced_state,
         reduced_velocity,
         reduced_boundary_forcing,
-        null_vec,
         free_dofs,
         boundary_conditions,
         time,
         failed,
         fom_model,
         reference,
+        false
     )
 end
 
@@ -66,7 +65,6 @@ function LinearOpInfRom(params::Parameters)
     num_dofs = reduced_dim
     time = 0.0
     failed = false
-    null_vec = zeros(num_dofs)
 
     reduced_state = zeros(num_dofs)
     reduced_velocity = zeros(num_dofs)
@@ -79,13 +77,13 @@ function LinearOpInfRom(params::Parameters)
         reduced_state,
         reduced_velocity,
         reduced_boundary_forcing,
-        null_vec,
         free_dofs,
         boundary_conditions,
         time,
         failed,
         fom_model,
         reference,
+        false,
     )
 end
 
@@ -100,7 +98,6 @@ function QuadraticOpInfRom(params::Parameters)
     num_dofs = reduced_dim
     time = 0.0
     failed = false
-    null_vec = zeros(num_dofs)
 
     reduced_state = zeros(num_dofs)
     reduced_velocity = zeros(num_dofs)
@@ -113,13 +110,13 @@ function QuadraticOpInfRom(params::Parameters)
         reduced_state,
         reduced_velocity,
         reduced_boundary_forcing,
-        null_vec,
         free_dofs,
         boundary_conditions,
         time,
         failed,
         fom_model,
         reference,
+        false,
     )
 end
 
@@ -134,7 +131,6 @@ function CubicOpInfRom(params::Parameters)
     num_dofs = reduced_dim
     time = 0.0
     failed = false
-    null_vec = zeros(num_dofs)
 
     reduced_state = zeros(num_dofs)
     reduced_velocity = zeros(num_dofs)
@@ -147,12 +143,12 @@ function CubicOpInfRom(params::Parameters)
         reduced_state,
         reduced_velocity,
         reduced_boundary_forcing,
-        null_vec,
         free_dofs,
         boundary_conditions,
         time,
         failed,
         fom_model,
         reference,
+        false,
     )
 end

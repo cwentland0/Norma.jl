@@ -34,7 +34,7 @@ boundary conditions:
     - node set: nsy+
       component: y
       function: "0.0"
-  Schwarz DN nonoverlap:
+  Schwarz nonoverlap:
     - side set: ssx+
       source: beam-2
       source block: coarse

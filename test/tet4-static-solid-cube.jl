@@ -9,9 +9,9 @@
     simulation = Norma.run("cube.yaml")
     integrator = simulation.integrator
     model = simulation.model
-    rm("cube.yaml"; force=true)
-    rm("cube.g"; force=true)
-    rm("cube.e"; force=true)
+    rm("cube.yaml")
+    rm("cube.g")
+    rm("cube.e")
     min_disp_x = minimum(integrator.displacement[1:3:end])
     min_disp_y = minimum(integrator.displacement[2:3:end])
     max_disp_z = maximum(integrator.displacement[3:3:end])

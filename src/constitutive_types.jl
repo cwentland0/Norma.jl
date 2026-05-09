@@ -9,3 +9,4 @@ using LinearAlgebra
 abstract type Material end
 abstract type Solid <: Material end
 abstract type Elastic <: Solid end
+abstract type Inelastic <: Solid end

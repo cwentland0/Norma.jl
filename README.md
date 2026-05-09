@@ -29,19 +29,12 @@ time. (~300,000 elements)*
 ## Quick Start
 
 ```bash
-# Self-activating CLI wrapper (recommended)
-bin/norma input.yaml
-
-# Multi-threaded
-bin/norma input.yaml --threads 8
-
-# Or directly with julia
-julia --project=. src/Norma.jl input.yaml
+julia --project=@/path/to/Norma.jl /path/to/Norma.jl/src/Norma.jl input.yaml
 ```
 
-Interactive:
+Or run it interactively:
 ```julia
-using Pkg; Pkg.activate(".")
+using Pkg; Pkg.activate("/path/to/Norma.jl")
 using Norma
 Norma.run("input.yaml")
 ```
@@ -173,13 +166,15 @@ An example ROM input file can be found [here](https://github.com/sandialabs/Norm
 
 ### Running with Multiple Threads
 
+To run Norma.jl using multiple threads, set the `JULIA_NUM_THREADS` environment variable before launching Julia. For example, to use 4 threads:
+
 ```bash
-bin/norma input.yaml --threads 8
+JULIA_NUM_THREADS=4 julia --project=@/path/to/Norma.jl /path/to/Norma.jl/src/Norma.jl input.yaml
 ```
 
-Or via the environment variable:
+Or for interactive usage:
 ```bash
-JULIA_NUM_THREADS=8 julia --project=. src/Norma.jl input.yaml
+JULIA_NUM_THREADS=4 julia
 ```
 
 Inside Julia:

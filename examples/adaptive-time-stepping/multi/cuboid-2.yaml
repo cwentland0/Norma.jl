@@ -28,7 +28,7 @@ boundary conditions:
     - node set: nsz+
       component: z
       function: "-t"
-  Schwarz DN nonoverlap:
+  Schwarz nonoverlap:
     - side set: ssz-
       source: cuboid-1
       source block: fine

@@ -195,15 +195,18 @@ function initialize(integrator::QuasiStatic, solver::Solver, model::SolidMechani
 end
 
 function predict(integrator::QuasiStatic, solver::Solver, model::SolidMechanics)
+    copy_solution_source_targets(model, integrator, solver)
     return nothing
 end
 
 function correct(integrator::QuasiStatic, solver::Solver, model::SolidMechanics)
+    copy_solution_source_targets(solver, model, integrator)
     return nothing
 end
 
 function initialize(integrator::Newmark, solver::HessianMinimizer, model::SolidMechanics)
     norma_log(0, :acceleration, "Computing Initial Acceleration...")
+    copy_solution_source_targets(model, integrator, solver)
     free = model.free_dofs
     evaluate(model, integrator, solver)
     if model.failed == true
@@ -211,6 +214,10 @@ function initialize(integrator::Newmark, solver::HessianMinimizer, model::SolidM
     end
     internal_force = model.internal_force
     external_force = model.body_force + model.boundary_force
+    if model.inclined_support == true
+        external_force = model.global_transform * external_force
+        internal_force = model.global_transform * internal_force
+    end
     inertial_force = external_force - internal_force
     kinetic_energy = 0.5 * dot(integrator.velocity, model.mass, integrator.velocity)
     integrator.kinetic_energy = kinetic_energy
@@ -218,10 +225,12 @@ function initialize(integrator::Newmark, solver::HessianMinimizer, model::SolidM
     atol = solver.linear_solver_absolute_tolerance
     rtol = solver.linear_solver_relative_tolerance
     integrator.acceleration[free] = solve_linear(model.mass[free, free], inertial_force[free], atol, rtol)
+    copy_solution_source_targets(integrator, solver, model)
     return nothing
 end
 
 function predict(integrator::Newmark, solver::Solver, model::SolidMechanics)
+    copy_solution_source_targets(model, integrator, solver)
     free = model.free_dofs
     fixed = .!free
     Δt = integrator.time_step
@@ -236,8 +245,7 @@ function predict(integrator::Newmark, solver::Solver, model::SolidMechanics)
     v_pre[free] = v[free] += (1.0 - γ) * Δt * a[free]
     u_pre[fixed] = u[fixed]
     v_pre[fixed] = v[fixed]
-    # Set acceleration consistent with predicted displacement (u = u_pre → a = 0)
-    a[free] .= 0.0
+    copy_solution_source_targets(integrator, solver, model)
     return nothing
 end
 
@@ -246,17 +254,18 @@ function correct(integrator::Newmark, solver::Solver, model::SolidMechanics)
     Δt = integrator.time_step
     β = integrator.β
     γ = integrator.γ
-    integrator.displacement = solver.solution
-    u = integrator.displacement
+    u = integrator.displacement = solver.solution
     u_pre = integrator.disp_pre
     v_pre = integrator.velo_pre
     integrator.acceleration[free] = (u[free] - u_pre[free]) / β / Δt / Δt
     integrator.velocity[free] = v_pre[free] + γ * Δt * integrator.acceleration[free]
+    copy_solution_source_targets(integrator, solver, model)
     return nothing
 end
 
 function initialize(integrator::CentralDifference, solver::ExplicitSolver, model::SolidMechanics)
     norma_log(0, :acceleration, "Computing Initial Acceleration...")
+    copy_solution_source_targets(model, integrator, solver)
     free = model.free_dofs
     set_time_step(integrator, model)
     evaluate(model, integrator, solver)
@@ -265,15 +274,21 @@ function initialize(integrator::CentralDifference, solver::ExplicitSolver, model
     end
     internal_force = model.internal_force
     external_force = model.body_force + model.boundary_force
+    if model.inclined_support == true
+        external_force = model.global_transform * external_force
+        internal_force = model.global_transform * internal_force
+    end
     kinetic_energy = 0.5 * model.lumped_mass ⋅ (integrator.velocity .* integrator.velocity)
     integrator.kinetic_energy = kinetic_energy
     integrator.stored_energy = model.strain_energy
     inertial_force = external_force - internal_force
     integrator.acceleration[free] = inertial_force[free] ./ model.lumped_mass[free]
+    copy_solution_source_targets(integrator, solver, model)
     return nothing
 end
 
 function predict(integrator::CentralDifference, solver::ExplicitSolver, model::SolidMechanics)
+    copy_solution_source_targets(model, integrator, solver)
     free = model.free_dofs
     set_time_step(integrator, model)
     Δt = integrator.time_step
@@ -283,16 +298,17 @@ function predict(integrator::CentralDifference, solver::ExplicitSolver, model::S
     a = integrator.acceleration
     u[free] += Δt * v[free] + 0.5 * Δt * Δt * a[free]
     v[free] += (1.0 - γ) * Δt * a[free]
+    copy_solution_source_targets(integrator, solver, model)
     return nothing
 end
 
 function correct(integrator::CentralDifference, solver::ExplicitSolver, model::SolidMechanics)
     Δt = integrator.time_step
     γ = integrator.γ
-    integrator.acceleration = solver.solution
-    a = integrator.acceleration
+    a = integrator.acceleration = solver.solution
     free = model.free_dofs
     integrator.velocity[free] += γ * Δt * a[free]
+    copy_solution_source_targets(integrator, solver, model)
     return nothing
 end
 
